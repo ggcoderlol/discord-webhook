@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Message to Discord Webhook</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #00ff00;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .form-container {
+            max-width: 380px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            background-color: #000;
+            position: relative;
+        }
+
+        label {
+            font-weight: bold;
+            color: #ff0000;
+        }
+
+        input[type="text"], input[type="file"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #ff0000;
+            border-radius: 5px;
+            background-color: #000;
+            color: #00ff00;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #ff0000;
+            color: #000;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #ff3333;
+        }
+
+        .signature {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-weight: bold;
+        }
+
+        .signature span {
+            color: #0000ff;
+        }
+        a {
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Discord Webhook</h1>
+    <div class="form-container">
+        <label for="webhook_url">Enter Discord Webhook URL:</label><br>
+        <input type="text" id="webhook_url" name="webhook_url" required><br><br>
+        <label for="pic_url">Enter Pic URL:</label><br>
+        <input type="text" id="pic_url" name="pic_url"><br><br>
+        <label for="nickname">Enter Nickname:</label><br>
+        <input type="text" id="nickname" name="nickname"><br><br>
+        <label for="message">Enter Message:</label><br>
+        <input type="text" id="message" name="message"><br><br>
+        <label for="file">Upload File:</label><br>
+        <input type="file" id="file" name="file"><br><br>
+        <button id="removeButton" style="display: none;">Remove</button>
+        <button id="sendButton">Send Message</button>
+        <div class="signature">
+            <span>by</span> <a href="https://coderinventor.github.io/social/">coder inventor</a>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("file").addEventListener("change", function() {
+                var removeButton = document.getElementById("removeButton");
+                if (this.files.length > 0) {
+                    removeButton.style.display = "block";
+                } else {
+                    removeButton.style.display = "none";
+                }
+            });
+
+            document.getElementById("removeButton").addEventListener("click", function() {
+                var fileInput = document.getElementById("file");
+                fileInput.value = null;
+                this.style.display = "none";
+            });
+
+            document.getElementById("sendButton").addEventListener("click", function(event) {
+                event.preventDefault();
+                var webhookUrl = document.getElementById("webhook_url").value;
+                var picUrl = document.getElementById("pic_url").value;
+                var nickname = document.getElementById("nickname").value;
+                var message = document.getElementById("message").value;
+                var file = document.getElementById("file").files[0];
+                sendMessageToDiscordWebhook(webhookUrl, picUrl, nickname, message, file);
+            });
+        });
+
+        function sendMessageToDiscordWebhook(webhookUrl, picUrl, nickname, content, file) {
+            var formData = new FormData();
+            formData.append('content', content);
+            if (nickname) {
+                formData.append('username', nickname);
+            }
+            if (picUrl) {
+                formData.append('avatar_url', picUrl);
+            }
+            if (file) {
+                formData.append('file', file);
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", webhookUrl, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 204) {
+                        console.log("Message sent successfully to Discord webhook.");
+                    } else {
+                        console.error("Failed to send message to Discord webhook. Status code:", xhr.status);
+                    }
+                }
+            };
+            xhr.send(formData);
+        }
+    </script>
+</body>
+</html>
